@@ -21,7 +21,7 @@ import java.util.List;
 
 public class LoginActivity extends AppCompatActivity implements UserAdapter.OnUserClickListener {
 
-    private LoginService loginService;
+    private final LoginService loginService = ServiceLocator.getLoginService();
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private UserAdapter userAdapter;
@@ -31,7 +31,6 @@ public class LoginActivity extends AppCompatActivity implements UserAdapter.OnUs
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        loginService = ServiceLocator.getLoginService();
         progressBar = findViewById(R.id.progressBar);
         recyclerView = findViewById(R.id.recyclerViewUsers);
 
