@@ -1,12 +1,16 @@
 package com.dorofeev.mynotes.activities;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
+import android.view.View;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -16,6 +20,7 @@ import com.dorofeev.mynotes.R;
 import com.dorofeev.mynotes.adapters.GroupAdapter;
 import com.dorofeev.mynotes.models.Group;
 import com.dorofeev.mynotes.services.GroupService;
+import com.dorofeev.mynotes.services.ServiceLocator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Введите текст для поиска", Toast.LENGTH_SHORT).show();
             }
         });
+
+        findViewById(R.id.fabAddGroup).setOnClickListener(v -> showFabActionsMenu(v));
     }
 
     /**
@@ -108,5 +115,59 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         groupAdapter.updateData(filtered);
+    }
+    private void showFabActionsMenu(View anchorView) {
+        PopupMenu popup = new PopupMenu(this, anchorView);
+        popup.inflate(R.menu.menu_fab_actions);
+
+        popup.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.menu_create_group) {
+                showCreateGroupDialog();
+                return true;
+            } else if (id == R.id.menu_create_note) {
+                Toast.makeText(this, "Создание заметки пока не реализовано", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            return false;
+        });
+
+        popup.show();
+    }
+    private void showCreateGroupDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_create_group, null);
+        EditText editTextGroupName = dialogView.findViewById(R.id.editTextGroupName);
+        Button buttonCreate = dialogView.findViewById(R.id.buttonCreate);
+        Button buttonCancel = dialogView.findViewById(R.id.buttonCancel);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        buttonCreate.setOnClickListener(v -> {
+            String groupName = editTextGroupName.getText().toString().trim();
+            if (!groupName.isEmpty()) {
+                Group newGroup = new Group(null, groupName);
+                ServiceLocator.getGroupService().createGroup(newGroup, new GroupService.OperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(MainActivity.this, "Группа создана", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Toast.makeText(MainActivity.this, "Ошибка создания группы: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(MainActivity.this, "Введите название группы", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        buttonCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }
