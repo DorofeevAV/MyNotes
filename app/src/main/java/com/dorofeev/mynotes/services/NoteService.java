@@ -41,6 +41,8 @@ public class NoteService {
         void onError(Exception e);
     }
 
+    public NoteService( ) { }
+
     /**
      * Создание новой заметки в коллекции Firestore
      */

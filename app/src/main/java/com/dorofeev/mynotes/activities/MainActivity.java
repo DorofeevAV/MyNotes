@@ -1,5 +1,6 @@
 package com.dorofeev.mynotes.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.widget.Button;
@@ -126,7 +127,10 @@ public class MainActivity extends AppCompatActivity {
                 showCreateGroupDialog();
                 return true;
             } else if (id == R.id.menu_create_note) {
-                Toast.makeText(this, "Создание заметки пока не реализовано", Toast.LENGTH_SHORT).show();
+                // Переход к созданию новой заметки
+                Intent intent = new Intent(this, NoteEditActivity.class);
+                intent.putExtra("mode", "create");
+                startActivity(intent);
                 return true;
             }
             return false;

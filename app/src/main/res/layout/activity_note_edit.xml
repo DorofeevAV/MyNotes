@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/noteScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -11,91 +10,58 @@
         android:layout_height="wrap_content">
 
         <!-- Заголовок -->
+        <TextView android:text="Заголовок" style="@style/TextAppearance.AppCompat.Medium"/>
         <EditText
             android:id="@+id/editTextTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Заголовок"
+            android:hint="Введите заголовок"
             android:inputType="textCapSentences" />
 
+        <!-- URL изображения -->
+        <TextView android:text="URL изображения" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/editTextImageUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="https://example.com/image.jpg"
+            android:inputType="textUri" />
+
         <!-- Группа -->
+        <TextView android:text="Группа" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
         <Spinner
             android:id="@+id/spinnerGroup"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp" />
+            android:layout_height="wrap_content" />
 
-        <!-- Markdown текст -->
+        <!-- Содержимое -->
+        <TextView android:text="Текст с Markdown-разметкой" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
         <EditText
             android:id="@+id/editTextContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minLines="6"
-            android:hint="Текст с Markdown"
+            android:hint="Введите текст с разметкой Markdown"
             android:gravity="top"
             android:inputType="textMultiLine" />
 
         <!-- Теги -->
+        <TextView android:text="Теги (через запятую)" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
         <EditText
             android:id="@+id/editTextTags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Теги (через запятую)"
-            android:layout_marginTop="12dp" />
-
-        <!-- Картинка (миниатюра) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="16dp">
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="104dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Изображение" />
-
-            <ImageView
-                android:id="@+id/imageViewPreview"
-                android:layout_width="81dp"
-                android:layout_height="91dp"
-                android:background="#CCCCCC"
-                android:contentDescription="Миниатюра"
-                android:scaleType="centerCrop"
-                android:src="@android:drawable/ic_menu_gallery" />
-
-            <Button
-                android:id="@+id/buttonSelectImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="Выбрать" />
-        </LinearLayout>
+            android:hint="например: важно,учёба"
+            android:inputType="text" />
 
         <!-- Файлы -->
-        <TextView
-            android:id="@+id/textFilesLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Файлы"
-            android:layout_marginTop="16dp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewFiles"
+        <TextView android:text="Ссылки на файлы (через ;)" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/editTextFileUrls"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:background="#F0F0F0"
-            android:padding="8dp" />
-
-        <Button
-            android:id="@+id/buttonAddFile"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Добавить файл"
-            android:layout_marginTop="8dp" />
+            android:hint="https://example.com/file1.pdf; https://example.com/file2.zip"
+            android:inputType="textMultiLine" />
 
         <!-- Кнопки -->
         <LinearLayout
@@ -129,5 +95,6 @@
                 android:layout_marginStart="8dp"
                 android:visibility="gone" />
         </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
