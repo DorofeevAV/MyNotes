@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Заголовок -->
+        <TextView android:text="Заголовок" style="@style/TextAppearance.AppCompat.Medium"/>
+        <EditText
+            android:id="@+id/editTextTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите заголовок"
+            android:inputType="textCapSentences" />
+
+        <!-- URL изображения -->
+        <TextView android:text="URL изображения" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/editTextImageUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="https://example.com/image.jpg"
+            android:inputType="textUri" />
+
+        <!-- Группа -->
+        <TextView android:text="Группа" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
+        <Spinner
+            android:id="@+id/spinnerGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Содержимое -->
+        <TextView android:text="Текст с Markdown-разметкой" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/editTextContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="6"
+            android:hint="Введите текст с разметкой Markdown"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
+
+        <!-- Теги -->
+        <TextView android:text="Теги (через запятую)" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/editTextTags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="например: важно,учёба"
+            android:inputType="text" />
+
+        <!-- Файлы -->
+        <TextView android:text="Ссылки на файлы (через ;)" style="@style/TextAppearance.AppCompat.Medium" android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/editTextFileUrls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="https://example.com/file1.pdf; https://example.com/file2.zip"
+            android:inputType="textMultiLine" />
+
+        <!-- Кнопки -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="24dp">
+
+            <Button
+                android:id="@+id/buttonSave"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Сохранить" />
+
+            <Button
+                android:id="@+id/buttonCancel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Отмена"
+                android:layout_marginStart="8dp" />
+
+            <Button
+                android:id="@+id/buttonDelete"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Удалить"
+                android:layout_marginStart="8dp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

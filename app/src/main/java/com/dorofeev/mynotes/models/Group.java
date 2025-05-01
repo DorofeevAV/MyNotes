@@ -25,7 +25,7 @@ public class Group {
         this.id = id;
         this.name = name;
     }
-
+    //
     // Геттер для id
     public String getId() {
         return id;
