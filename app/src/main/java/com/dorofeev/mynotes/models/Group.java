@@ -1,47 +1,40 @@
 package com.dorofeev.mynotes.models;
 
-/**
+import androidx.annotation.NonNull;
+
+/*
  * Модель данных для группы заметок
  */
 public class Group {
-    // Уникальный идентификатор группы (Firestore ID)
-    private String id;
-
-    // Название группы (например: "Учеба", "Работа", "Личное")
+    // Идентификатор группы
+    private final String id;
+    // Название группы
     private String name;
-
-    /**
-     * Конструктор без параметров (для работы с Firebase)
-     */
-    public Group() {
-    }
-
-    /**
+    /*
      * Конструктор для создания объекта с начальными значениями
-     * @param id Идентификатор группы
-     * @param name Название группы
+     * @param id Идентификатор пользователя - берется из БД
+     * @param dto Объект данных из Firebase
      */
-    public Group(String id, String name) {
+    public Group(@NonNull String id, @NonNull String name) {
         this.id = id;
         this.name = name;
     }
-    //
-    // Геттер для id
+    /*
+     * Конструктор копии объекта с начальными значениями
+     * @param group объект для копии
+     */
+    public Group(@NonNull Group group) {
+        id = group.id;
+        name = group.name;
+    }
+    // Геттер идентификатора
     public String getId() {
         return id;
     }
-
-    // Сеттер для id
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    // Геттер для name
+    // Геттер и сеттер для name
     public String getName() {
         return name;
     }
-
-    // Сеттер для name
     public void setName(String name) {
         this.name = name;
     }

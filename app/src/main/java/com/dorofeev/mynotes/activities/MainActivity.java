@@ -10,51 +10,44 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.core.graphics.Insets;
 import android.view.View;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dorofeev.mynotes.R;
 import com.dorofeev.mynotes.adapters.GroupAdapter;
 import com.dorofeev.mynotes.models.Group;
+import com.dorofeev.mynotes.models.Note;
+import com.dorofeev.mynotes.services.GroupNoteLinkService;
 import com.dorofeev.mynotes.services.GroupService;
-import com.dorofeev.mynotes.services.ServiceLocator;
+import com.dorofeev.mynotes.services.NoteService;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/*
  * Главный экран приложения — список групп заметок
  */
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerViewGroups;
+   /* private RecyclerView recyclerViewGroups;
     private GroupAdapter groupAdapter;
     private GroupService groupService;
-    private List<Group> groups = new ArrayList<>();
+    private NoteService noteService;
+    private GroupNoteLinkService groupNoteLinkService;
+    private List<Note> allNotes = new ArrayList<>();
+    private List<GroupNoteLink> allLinks = new ArrayList<>();
     private EditText editTextSearch;
     private Button buttonSearch;
-
+*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Настройка отступов для системных панелей
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
+  /*      //
         recyclerViewGroups = findViewById(R.id.recyclerViewGroups);
         editTextSearch = findViewById(R.id.editTextSearch);
         buttonSearch = findViewById(R.id.buttonSearch);
-
-        recyclerViewGroups.requestFocus();
 
         // Настройка сетки групп
         int spanCount = getResources().getConfiguration().orientation ==
@@ -63,39 +56,16 @@ public class MainActivity extends AppCompatActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(this, spanCount);
         recyclerViewGroups.setLayoutManager(layoutManager);
 
-        // Инициализация адаптера
-        groupAdapter = new GroupAdapter(groups);
-        recyclerViewGroups.setAdapter(groupAdapter);
+        // Получение всех сервисов
+        groupService = ServiceLocator.getGroupService();
+        noteService = ServiceLocator.getNoteService();
+        groupNoteLinkService = ServiceLocator.getGroupNoteLinkService();
 
-        // Инициализация сервиса групп
-        groupService = new GroupService();
-
-        // Подписка на изменения групп
-        startListeningGroups();
-
-        // Обработка поиска
-        buttonSearch.setOnClickListener(v -> {
-            String query = editTextSearch.getText().toString().trim();
-            if (!query.isEmpty()) {
-                filterGroups(query);
-            } else {
-                Toast.makeText(this, "Введите текст для поиска", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        findViewById(R.id.fabAddGroup).setOnClickListener(v -> showFabActionsMenu(v));
-    }
-
-    /**
-     * Начинаем слушать изменения в списке групп
-     */
-    private void startListeningGroups() {
-        groupService.startListeningGroupChange(new GroupService.GroupsChangedListener() {
+        // подписка на группы
+        groupService.startListenGroups(new GroupService.GroupsChangedListener() {
             @Override
             public void onGroupsChanged(List<Group> updatedGroups) {
-                groups.clear();
-                groups.addAll(updatedGroups);
-                groupAdapter.notifyDataSetChanged();
+                updateGroupAdapter();
             }
 
             @Override
@@ -103,24 +73,55 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Ошибка загрузки групп", Toast.LENGTH_SHORT).show();
             }
         });
-    }
 
-    /**
-     * Фильтрация списка групп по тексту поиска
-     */
-    private void filterGroups(String query) {
-        List<Group> filtered = new ArrayList<>();
-        for (Group group : groups) {
-            if (group.getName() != null && group.getName().toLowerCase().contains(query.toLowerCase())) {
-                filtered.add(group);
+        // подписка на заметки
+        noteService.startListenNotes(new NoteService.NotesChangedListener() {
+            @Override
+            public void onNotesChanged(List<Note> updatedNotes) {
+                allNotes = updatedNotes;
+                updateGroupAdapter();
             }
-        }
-        groupAdapter.updateData(filtered);
-    }
-    private void showFabActionsMenu(View anchorView) {
-        PopupMenu popup = new PopupMenu(this, anchorView);
-        popup.inflate(R.menu.menu_fab_actions);
 
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(MainActivity.this, "Ошибка загрузки заметок", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // подписка на связи
+        groupNoteLinkService.startListenLinks(new GroupNoteLinkService.OnLinksChangedListener() {
+            @Override
+            public void onLinksChanged(List<GroupNoteLink> updatedLinks) {
+                allLinks = updatedLinks;
+                updateGroupAdapter();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(MainActivity.this, "Ошибка загрузки связей", Toast.LENGTH_SHORT).show();
+            }
+        });
+        // Инициализация адаптера
+        groupAdapter = new GroupAdapter();
+        recyclerViewGroups.setAdapter(groupAdapter);
+
+        // Обработка нажатия плавающй кнопи добавить группу\заметку
+        findViewById(R.id.fabAddGroup).setOnClickListener(v -> showFabActionsMenu(v));
+   */ }
+    private void updateGroupAdapter() {
+     //   runOnUiThread(() -> groupAdapter.updateData(allNotes, allLinks));
+    }
+    /*
+     * Показать меню действий для создания группы или заметки
+     * @param anchorView Вьюха, к которой будет прикреплено меню
+     */
+    private void showFabActionsMenu(View anchorView) {
+      /*  PopupMenu popup = new PopupMenu(this, anchorView);
+        popup.inflate(R.menu.menu_fab_actions);
+        // Скрыть пункт "Создать заметку", если нет групп
+        if (groupAdapter.getItemCount() == 0) {
+            popup.getMenu().findItem(R.id.menu_create_note).setVisible(false);
+        }
         popup.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.menu_create_group) {
@@ -137,25 +138,28 @@ public class MainActivity extends AppCompatActivity {
         });
 
         popup.show();
-    }
+    */}
+    /*
+     * Показать диалог для создания новой группы
+     */
     private void showCreateGroupDialog() {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_create_group, null);
+      /*  View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_group, null);
+        // Настройка элементов диалога
+        dialogView.findViewById(R.id.buttonUpdate).setVisibility(View.GONE);
+        dialogView.findViewById(R.id.buttonDelete).setVisibility(View.GONE);
+        //
         EditText editTextGroupName = dialogView.findViewById(R.id.editTextGroupName);
-        Button buttonCreate = dialogView.findViewById(R.id.buttonCreate);
-        Button buttonCancel = dialogView.findViewById(R.id.buttonCancel);
-
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setCancelable(false)
                 .create();
-
-        buttonCreate.setOnClickListener(v -> {
+        // Обработчики
+        dialogView.findViewById(R.id.buttonCreate).setOnClickListener(v -> {
             String groupName = editTextGroupName.getText().toString().trim();
             if (!groupName.isEmpty()) {
-                Group newGroup = new Group(null, groupName);
-                ServiceLocator.getGroupService().createGroup(newGroup, new GroupService.OperationCallback() {
+                groupService.createGroup(new Group.GroupDTO(groupName), new GroupService.OperationCallback() {
                     @Override
-                    public void onSuccess() {
+                    public void onSuccess(Group group) {
                         Toast.makeText(MainActivity.this, "Группа создана", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                     }
@@ -170,8 +174,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        buttonCancel.setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.buttonCancel).setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
-    }
+  */  }
 }

@@ -5,19 +5,19 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testGetGroups()">
+      <SelectionState runConfigName="test_01_CreateTwoGroupsWithNotes()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testCreateGroup()">
+      <SelectionState runConfigName="test_03_RenameNote()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testRenameAndVerifyGroups()">
+      <SelectionState runConfigName="test_04_MoveNoteToAnotherGroup()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testDeleteAllGroups()">
+      <SelectionState runConfigName="test_05_DeleteNoteFromGroup()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="FirestoreTest">
+      <SelectionState runConfigName="test_06_DeleteAllGroups()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class FirestoreTest {
     @Test
     public void testLoadUsersFromFirestore() throws InterruptedException {
-        // Тест для проверки загрузки пользователей из Firestore
-        // Успешный результат - пользователи которые заданы в БД
+        /// Тест для проверки загрузки пользователей из Firestore
+        /// Успешный результат - пользователи которые заданы в БД
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -47,7 +47,7 @@ public class FirestoreTest {
                     latch.countDown();
                 });
 
-        // Ждём максимум 10 секунд выполнения
+        /// Ждём максимум 10 секунд выполнения
         latch.await(20, TimeUnit.SECONDS);
     }
 }

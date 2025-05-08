@@ -47,11 +47,13 @@
                 android:contentDescription="Редактировать группу"/>
         </LinearLayout>
 
-        <!-- Пустое тело группы пока -->
-        <FrameLayout
-            android:id="@+id/bodyLayout"
+        <!-- RecyclerView для заметок внутри группы -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewNotes"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:layout_below="@id/headerLayout"/>
+            android:layout_height="wrap_content"
+            android:layout_below="@id/headerLayout"
+            android:padding="8dp"
+            android:nestedScrollingEnabled="false"/>
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

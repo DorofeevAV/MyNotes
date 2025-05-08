@@ -3,62 +3,72 @@ package com.dorofeev.mynotes.services;
 import androidx.annotation.NonNull;
 
 import com.dorofeev.mynotes.models.User;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Сервис для работы с пользователями
+/*
+ * Синглтон - сервис для работы с пользователями
  * Загрузка пользователей из Firestore
  * Установка текущего пользователя
  */
 public class LoginService {
-    // Поля
+    private static LoginService instance; // Экземпляр сервиса
     private User currentUser; // Текущий пользователь
-    private final FirebaseFirestore db; // База данных Firestore
-    // Конструктор
-    public LoginService() {
-        db = FirebaseFirestore.getInstance();
+    private final CollectionReference collectionRef; // Ссылка на коллекцию пользователей
+    /*
+     * Получение экземпляра сервиса
+     */
+    public static LoginService getInstance() {
+        if (instance == null){
+            instance = new LoginService();
+        }
+        return instance;
+    }
+    /*
+     * Конструктор для создания объекта с начальными значениями
+     */
+    private LoginService() {
+        collectionRef = FirebaseFirestore.getInstance().collection("users");
     }
     // Интерфейс для callback загрузки пользователей
     public interface UsersLoadedCallback {
-        /** Метод для обработки успешной загрузки пользователей
+        /* Метод для обработки успешной загрузки пользователей
          * @param users Список пользователей
          */
         void onUsersLoaded(List<User> users);
-        /** Метод для обработки ошибки загрузки пользователей
+        /* Метод для обработки ошибки загрузки пользователей
          * @param e Исключение
          */
         void onError(Exception e);
     }
     // Интерфейс для callback логина пользователя
     public interface UserLoginCallback {
-        /** Метод для обработки успешного логина пользователя
+        /* Метод для обработки успешного логина пользователя
          * @param user Пользователь
          */
         void onUserLoggedIn(User user);
-        /** Метод для обработки ошибки логина пользователя
+        /* Метод для обработки ошибки логина пользователя
          * @param e Исключение
          */
         void onError(Exception e);
     }
-
-    /**
+    /*
      * Загрузка всех пользователей
      * @param callback Callback для обработки результата
      */
     public void getUsers(@NonNull final UsersLoadedCallback callback) {
-        db.collection("users")
+        collectionRef
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<User> users = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        String id = doc.getId();
-                        String username = doc.getString("username");
-                        if (username != null) {
-                            users.add(new User(id, username));
+                        User.UserDTO dto = doc.toObject(User.UserDTO.class);
+                        if (dto.getUsername() != null) {
+                            users.add(new User(doc.getId(), dto));
                         }
                     }
                     callback.onUsersLoaded(users);
@@ -66,23 +76,23 @@ public class LoginService {
                 .addOnFailureListener(callback::onError);
     }
 
-    /**
+    /*
      * Логин пользователя по ID с проверкой в БД
      * @param userId ID пользователя
      * @param callback Callback для обработки результата
      */
     public void loginUser(@NonNull String userId, @NonNull final UserLoginCallback callback) {
-        db.collection("users")
+        collectionRef
                 .document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        String username = documentSnapshot.getString("username");
-                        if (username != null) {
-                            currentUser = new User(documentSnapshot.getId(), username);
+                        User.UserDTO dto = documentSnapshot.toObject(User.UserDTO.class);
+                        if (dto != null && dto.getUsername() != null) {
+                            currentUser = new User(userId, dto);
                             callback.onUserLoggedIn(currentUser);
                         } else {
-                            callback.onError(new Exception("User not found"));
+                            callback.onError(new Exception("User data is invalid or incomplete"));
                         }
                     } else {
                         callback.onError(new Exception("User not found"));
@@ -90,8 +100,7 @@ public class LoginService {
                 })
                 .addOnFailureListener(callback::onError);
     }
-
-    /**
+    /*
      * Получить текущего пользователя после успешного входа
      */
     public User getCurrentUser() {

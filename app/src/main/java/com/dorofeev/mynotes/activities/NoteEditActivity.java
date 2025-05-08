@@ -10,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.dorofeev.mynotes.R;
 import com.dorofeev.mynotes.models.Group;
 import com.dorofeev.mynotes.models.Note;
+import com.dorofeev.mynotes.services.GroupNoteLinkService;
 import com.dorofeev.mynotes.services.GroupService;
 import com.dorofeev.mynotes.services.NoteService;
-import com.dorofeev.mynotes.services.ServiceLocator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +22,9 @@ public class NoteEditActivity extends AppCompatActivity {
     private EditText editTextTitle, editTextContent, editTextTags, editTextImageUrl, editTextFileUrls;
     private Spinner spinnerGroup;
 
-    private final NoteService noteService = ServiceLocator.getNoteService();
-    private final GroupService groupService = ServiceLocator.getGroupService();
+    private NoteService noteService;
+    private GroupService groupService;
+    private GroupNoteLinkService groupNoteLinkService;
 
     private List<Group> groups = new ArrayList<>();
     private String selectedGroupId = null;
@@ -32,7 +33,11 @@ public class NoteEditActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_edit);
-
+/*        //
+        noteService = ServiceLocator.getNoteService();
+        groupService = ServiceLocator.getGroupService();
+        groupNoteLinkService = ServiceLocator.getGroupNoteLinkService();
+        //
         editTextTitle = findViewById(R.id.editTextTitle);
         editTextContent = findViewById(R.id.editTextContent);
         editTextTags = findViewById(R.id.editTextTags);
@@ -48,10 +53,10 @@ public class NoteEditActivity extends AppCompatActivity {
         findViewById(R.id.buttonSave).setOnClickListener(v -> saveNote());
 
         loadGroups();
-    }
+*/    }
 
     private void loadGroups() {
-        groupService.startListeningGroupChange(new GroupService.GroupsChangedListener() {
+/*        groupService.startListenGroups(new GroupService.GroupsChangedListener() {
             @Override
             public void onGroupsChanged(List<Group> loadedGroups) {
                 groups = loadedGroups;
@@ -83,10 +88,10 @@ public class NoteEditActivity extends AppCompatActivity {
                 Toast.makeText(NoteEditActivity.this, "Ошибка загрузки групп", Toast.LENGTH_SHORT).show();
             }
         });
-    }
+*/    }
 
     private void saveNote() {
-        String title = editTextTitle.getText().toString().trim();
+/*        String title = editTextTitle.getText().toString().trim();
         String content = editTextContent.getText().toString().trim();
         String imageUrl = editTextImageUrl.getText().toString().trim();
         String tagsInput = editTextTags.getText().toString().trim();
@@ -94,17 +99,17 @@ public class NoteEditActivity extends AppCompatActivity {
 
         List<String> tags = new ArrayList<>();
         if (!tagsInput.isEmpty()) {
-            for (String tag : tagsInput.split(",")) {
-                tags.add(tag.trim());
+            for (String tag : tagsInput.split(";")) {
+                String t = tag.trim();
+                if (!t.isEmpty()) tags.add(t);
             }
         }
 
         List<String> fileUrls = new ArrayList<>();
         if (!fileUrlsInput.isEmpty()) {
             for (String url : fileUrlsInput.split(";")) {
-                if (!url.trim().isEmpty()) {
-                    fileUrls.add(url.trim());
-                }
+                String u = url.trim();
+                if (!u.isEmpty()) fileUrls.add(u);
             }
         }
 
@@ -115,19 +120,30 @@ public class NoteEditActivity extends AppCompatActivity {
 
         if (imageUrl.isEmpty()) imageUrl = null;
 
-        Note note = new Note(title, content, selectedGroupId, imageUrl, fileUrls, tags);
-
-        noteService.createNote(note, new NoteService.OperationCallback() {
+        Note.NoteDTO dto = new Note.NoteDTO(title, content, imageUrl, fileUrls, tags);
+        noteService.createNote(dto, new NoteService.OperationCallback() {
             @Override
-            public void onSuccess() {
-                Toast.makeText(NoteEditActivity.this, "Заметка создана", Toast.LENGTH_SHORT).show();
-                finish();
+            public void onSuccess(Note createdNote) {
+                // При успешном создании заметки — создаём связь с группой
+                GroupNoteLink.LinkDTO linkDTO = new GroupNoteLink.LinkDTO(createdNote.getId(), selectedGroupId);
+                groupNoteLinkService.createLink(linkDTO, new GroupNoteLinkService.OperationCallback() {
+                    @Override
+                    public void onSuccess(GroupNoteLink link) {
+                        Toast.makeText(NoteEditActivity.this, "Заметка сохранена", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Toast.makeText(NoteEditActivity.this, "Ошибка связи: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
             public void onError(Exception e) {
-                Toast.makeText(NoteEditActivity.this, "Ошибка создания: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(NoteEditActivity.this, "Ошибка сохранения: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
+*/    }
 }
