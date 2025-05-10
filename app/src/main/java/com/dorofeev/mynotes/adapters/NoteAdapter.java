@@ -21,16 +21,38 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Адаптер для отображения списка заметок
+ * Использует RecyclerView для отображения элементов списка
+ */
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
 
-    private final List<Note> notes = new ArrayList<>();
-
+    private final List<Note> notes = new ArrayList<>(); // Список заметок
+    private boolean editable = true; // Флаг редактирования
+    /*
+     * Установка нового списка заметок
+     * @param newNotes Новый список заметок
+     */
     public void setNotes(List<Note> newNotes) {
         notes.clear();
         notes.addAll(newNotes);
         notifyDataSetChanged();
     }
-
+    /*
+     * Установка флага редактирования
+     * @param editable Флаг редактирования
+     */
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+    // Возвращает количество элементов в списке
+    @Override
+    public int getItemCount() {
+        return notes.size();
+    }
+    /*
+     * Создание нового элемента списка заметок
+     */
     @NonNull
     @Override
     public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -38,7 +60,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
                 .inflate(R.layout.item_note, parent, false);
         return new NoteViewHolder(view);
     }
-
+    /*
+     * Привязка данных к элементу списка
+     */
     @Override
     public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
         Note note = notes.get(position);
@@ -60,31 +84,43 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         }
 
         // Открыть экран просмотра заметки
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, NoteViewActivity.class);
-            intent.putExtra("noteId", note.getId());
-            context.startActivity(intent);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, NoteViewActivity.class);
+                intent.putExtra("noteId", note.getId());
+                context.startActivity(intent);
+            }
         });
 
-        // Кнопка редактирования заметки
-        holder.buttonEditNote.setOnClickListener(v -> {
-            Intent intent = new Intent(context, NoteEditActivity.class);
-            intent.putExtra("mode", "edit");
-            intent.putExtra("noteId", note.getId());
-            context.startActivity(intent);
-        });
+        // Управление кнопкой редактирования
+        if (editable) {
+            holder.buttonEditNote.setVisibility(View.VISIBLE);
+            holder.buttonEditNote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, NoteEditActivity.class);
+                    intent.putExtra("mode", "edit");
+                    intent.putExtra("noteId", note.getId());
+                    context.startActivity(intent);
+                }
+            });
+        } else {
+            holder.buttonEditNote.setVisibility(View.GONE);
+            holder.buttonEditNote.setOnClickListener(null);
+        }
     }
-
-    @Override
-    public int getItemCount() {
-        return notes.size();
-    }
-
+    /*
+     * Внутренний класс для представления элемента списка заметок
+     */
     static class NoteViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageViewNote;
-        TextView textViewNoteTitle;
-        ImageButton buttonEditNote;
-
+        ImageView imageViewNote; // Изображение заметки
+        TextView textViewNoteTitle; // Заголовок заметки
+        ImageButton buttonEditNote; // Кнопка редактирования заметки
+        /*
+         * Конструктор для создания элемента списка заметок
+         * @param itemView Элемент списка
+         */
         public NoteViewHolder(@NonNull View itemView) {
             super(itemView);
             imageViewNote = itemView.findViewById(R.id.imageViewNote);

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -55,14 +56,15 @@
         <TextView android:text="Текст с разметкой"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+
         <EditText
             android:id="@+id/editTextContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minLines="6"
-            android:hint="Введите текст с разметкой Markdown"
+            android:layout_height="116dp"
             android:gravity="top"
-            android:inputType="textMultiLine" />
+            android:hint="Введите текст с разметкой Markdown"
+            android:inputType="textMultiLine"
+            android:minLines="6" />
 
         <!-- Ссылки на файлы -->
         <TextView android:text="URL на файлы через ';'"
@@ -72,7 +74,7 @@
         <EditText
             android:id="@+id/editTextFileUrls"
             android:layout_width="match_parent"
-            android:layout_height="156dp"
+            android:layout_height="wrap_content"
             android:hint="https://example.com/file1.pdf; https://example.com/file2.zip"
             android:inputType="textMultiLine" />
 
@@ -89,7 +91,8 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Сохранить" />
+                android:text="Сохранить"
+                android:textSize="12sp" />
 
             <Button
                 android:id="@+id/buttonDelete"
@@ -97,7 +100,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Удалить"
-                android:layout_marginStart="8dp" />
+                android:layout_marginStart="8dp"
+                android:textSize="12sp" />
 
             <Button
                 android:id="@+id/buttonCancel"
@@ -105,7 +109,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Отмена"
-                android:layout_marginStart="8dp" />
+                android:layout_marginStart="8dp"
+                android:textSize="12sp" />
 
         </LinearLayout>
 

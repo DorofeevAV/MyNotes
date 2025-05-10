@@ -16,10 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-/**
+/*
  * Тесты для NoteService: создание, изменение, удаление заметки
  */
 @RunWith(AndroidJUnit4.class)
@@ -52,7 +51,7 @@ public class NoteServiceTest {
         //
         return noteService;
     }
-
+    // Тест создания заметки
     @Test
     public void test_01_CreateNote() throws Exception {
         NoteService noteService = init();
@@ -109,7 +108,7 @@ public class NoteServiceTest {
         });
         assertTrue("Обновление заметки не завершилось вовремя", latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
     }
-
+    // Тест получения заметок
     @Test
     public void test_03_LoadAllNotes() throws Exception {
         NoteService noteService = init();
@@ -122,7 +121,7 @@ public class NoteServiceTest {
             System.out.println("Заметка: " + n.getTitle());
         }
     }
-
+    // Удаление всех заметок
     @Test
     public void test_04_DeleteAllNotes() throws Exception {
         NoteService noteService = init();

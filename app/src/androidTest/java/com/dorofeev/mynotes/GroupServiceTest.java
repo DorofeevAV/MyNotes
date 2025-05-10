@@ -19,6 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
+/*
+ * Тесты для GroupService
+ */
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupServiceTest {
@@ -49,7 +52,9 @@ public class GroupServiceTest {
 
         return groupService;
     }
-
+    /*
+     * Тест создания группы
+     */
     @Test
     public void test_01_CreateGroup() throws Exception {
         GroupService groupService = init();
@@ -73,11 +78,19 @@ public class GroupServiceTest {
 
         assertTrue("Создание новой группы не завершилось вовремя", latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
 
-        boolean found = groupService.getGroups().stream().anyMatch(g -> groupName.equals(g.getName()));
+        boolean found = false;
+        for (Group g : groupService.getGroups()) {
+            if (groupName.equals(g.getName())) {
+                found = true;
+                break;
+            }
+        }
 
         assertTrue("Созданная группа не найдена в списке групп", found);
     }
-
+    /*
+     * Тест получения групп
+     */
     @Test
     public void test_02_GetGroups() throws Exception {
         GroupService groupService = init();
@@ -90,7 +103,9 @@ public class GroupServiceTest {
             System.out.println("Группа: " + group.getName() + " (ID: " + group.getId() + ")");
         }
     }
-
+    /*
+     * Тест переименования групы
+     */
     @Test
     public void test_03_RenameAndVerifyGroups() throws Exception {
         GroupService groupService = init();
@@ -115,7 +130,7 @@ public class GroupServiceTest {
             groupService.updateGroup(group, new GroupService.OperationCallback() {
                 @Override
                 public void onSuccess(Group updatedGroup) {
-                    System.out.println("Группа успешно переименована в: " + updatedGroup.getName());
+                    System.out.println("Группа успешно переименована: " + updatedGroup.getName());
                     latchUpdate.countDown();
                 }
 
@@ -140,7 +155,9 @@ public class GroupServiceTest {
             }
         }
     }
-
+    /*
+     * Тест удаления всех групп
+     */
     @Test
     public void test_04_DeleteAllGroups() throws Exception {
         GroupService groupService = init();

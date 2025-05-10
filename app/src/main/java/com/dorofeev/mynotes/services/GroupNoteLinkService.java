@@ -4,10 +4,15 @@ import androidx.annotation.NonNull;
 
 import com.dorofeev.mynotes.models.Group;
 import com.dorofeev.mynotes.models.GroupNoteLink;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -43,27 +48,31 @@ public class GroupNoteLinkService {
      * Конструктор для создания объекта с начальными значениями
      * @param listenerCallback Слушатель изменений
      */
-    public GroupNoteLinkService(LinksChangedListener listenerCallback) {
+    public GroupNoteLinkService(final LinksChangedListener listenerCallback) {
         this.collectionRef = FirebaseFirestore.getInstance().collection("group_note_links");
 
-        this.listener = collectionRef.addSnapshotListener((snapshots, e) -> {
-            if (e != null || snapshots == null) {
-                if (listenerCallback != null) listenerCallback.onError(e);
-                return;
-            }
-
-            List<GroupNoteLink> newList = new ArrayList<>();
-            for (QueryDocumentSnapshot doc : snapshots) {
-                DTO_Link dto = doc.toObject(DTO_Link.class);
-                if (dto.groupId != null && dto.noteId != null) {
-                    newList.add(dto.toGroup(doc.getId()));
+        this.listener = collectionRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(com.google.firebase.firestore.QuerySnapshot snapshots, FirebaseFirestoreException e) {
+                if (e != null || snapshots == null) {
+                    if (listenerCallback != null) listenerCallback.onError(e);
+                    return;
                 }
-            }
 
-            cachedLinks = Collections.unmodifiableList(newList);
-            if (listenerCallback != null) listenerCallback.onLinksChanged(cachedLinks);
+                List<GroupNoteLink> newList = new ArrayList<GroupNoteLink>();
+                for (QueryDocumentSnapshot doc : snapshots) {
+                    DTO_Link dto = doc.toObject(DTO_Link.class);
+                    if (dto.groupId != null && dto.noteId != null) {
+                        newList.add(dto.toGroup(doc.getId()));
+                    }
+                }
+
+                cachedLinks = Collections.unmodifiableList(newList);
+                if (listenerCallback != null) listenerCallback.onLinksChanged(cachedLinks);
+            }
         });
     }
+
     /*
      * Получить спислк ссылое
      */
@@ -75,33 +84,58 @@ public class GroupNoteLinkService {
      * @param groupId Идентификатор группы
      * @param noteId Идентификатор заметки
      */
-    public void createLink(@NonNull String groupId, @NonNull String noteId, @NonNull final OperationCallback callback) {
-        String id = collectionRef.document().getId();
-        GroupNoteLink link = new GroupNoteLink(id, groupId, noteId);
-        collectionRef.document()
+    public void createLink(@NonNull final String groupId, @NonNull final String noteId, @NonNull final OperationCallback callback) {
+        final String id = collectionRef.document().getId();
+        final GroupNoteLink link = new GroupNoteLink(id, groupId, noteId);
+
+        collectionRef
+                .document()
                 .set(new DTO_Link(link))
-                .addOnSuccessListener(unused -> callback.onSuccess(link))
-                .addOnFailureListener(callback::onError);
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        callback.onSuccess(link);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onError(e);
+                    }
+                });
     }
+
     /*
      * Обновить ссылку между группой и заметкой
      * @param link Ссылка для обновления
      * @param callback Callback для обработки результата
      */
-    public void updateLink(@NonNull GroupNoteLink link, @NonNull final OperationCallback callback) {
+    public void updateLink(@NonNull final GroupNoteLink link, @NonNull final OperationCallback callback) {
 
         DTO_Link dto = new DTO_Link(link);
-        collectionRef.document(link.getId())
+        collectionRef
+                .document(link.getId())
                 .set(dto, SetOptions.merge())
-                .addOnSuccessListener(unused -> callback.onSuccess(link))
-                .addOnFailureListener(callback::onError);
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        callback.onSuccess(link);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onError(e);
+                    }
+                });
     }
+
     /*
      * Удалить одну или несколько ссылок между группами и заметками через Batch
      * @param links Список ссылок для удаления
      * @param callback Callback для обработки результата
      */
-    public void deleteLinks(@NonNull List<String> linksIds, @NonNull final DeleteCallback callback) {
+    public void deleteLinks(@NonNull final List<String> linksIds, @NonNull final DeleteCallback callback) {
         if (linksIds.isEmpty()) {
             callback.onSuccess(linksIds); // ничего удалять
             return;
@@ -114,8 +148,19 @@ public class GroupNoteLinkService {
         }
 
         batch.commit()
-                .addOnSuccessListener(unused -> callback.onSuccess(linksIds)) // можно передать первый как результат
-                .addOnFailureListener(callback::onError);
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        // можно передать первый как результат
+                        callback.onSuccess(linksIds);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onError(e);
+                    }
+                });
     }
 
     /*

@@ -10,7 +10,6 @@ import com.dorofeev.mynotes.services.GroupNoteManager;
 import com.dorofeev.mynotes.services.GroupService;
 import com.dorofeev.mynotes.services.NoteService;
 
-import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /*
- * Тесты для GroupNoteManager:
+ * Тесты для GroupNoteManager
  */
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -43,6 +42,7 @@ public class GroupNoteManagerTest {
         latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS); // Блокируем поток до загрузки
         return GroupNoteManager.getInstance();
     }
+    // Тест создания двух групп с заметками
     @Test
     public void test_01_CreateTwoGroupsWithNotes() throws Exception {
         GroupNoteManager manager = init();
@@ -88,7 +88,7 @@ public class GroupNoteManagerTest {
 
         assertTrue("Создание заметок не завершилось вовремя", createLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
     }
-
+    // Тест чтения структуры групп и заметок
     @Test
     public void test_02_ReadStructure() throws Exception {
         GroupNoteManager manager = init();
@@ -105,7 +105,7 @@ public class GroupNoteManagerTest {
             }
         }
     }
-
+    // Тест переименования заметки
     @Test
     public void test_03_RenameNote() throws Exception {
         GroupNoteManager manager = init();
@@ -129,11 +129,18 @@ public class GroupNoteManagerTest {
         });
         assertTrue("Обновление заметки не завершилось вовремя", updateLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
         structure = manager.getStructureSnapshot();
-        group = structure.keySet().iterator().next();
-        note = structure.get(group).get(0);
+        // Найти обновлённую заметку
+        for (Map.Entry<Group, List<Note>> entry : structure.entrySet()) {
+            for (Note n : entry.getValue()) {
+                if (n.getId().equals(note.getId())) {
+                    note = n;
+                    break;
+                }
+            }
+        }
         assertTrue("Заголовок заметки не обновился", note.getTitle().equals("Обновлённый заголовок"));
     }
-
+    // Тест перемещения заметки в другую группу
     @Test
     public void test_04_MoveNoteToAnotherGroup() throws Exception {
         GroupNoteManager manager = init();
@@ -158,7 +165,7 @@ public class GroupNoteManagerTest {
         });
         assertTrue("Перемещение заметки не завершилось вовремя", moveLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
     }
-
+    // Тест удаления заметки из группы
     @Test
     public void test_05_DeleteNoteFromGroup() throws Exception {
         GroupNoteManager manager = init();
@@ -181,7 +188,7 @@ public class GroupNoteManagerTest {
         });
         assertTrue("Удаление заметки не завершилось вовремя", deleteLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
     }
-
+    // Тест удаления всех групп
     @Test
     public void test_06_DeleteAllGroups() throws Exception {
         GroupNoteManager manager = init();

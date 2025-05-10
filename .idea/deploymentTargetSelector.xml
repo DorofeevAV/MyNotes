@@ -5,19 +5,19 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="test_01_CreateTwoGroupsWithNotes()">
+      <SelectionState runConfigName="LoginServiceTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="test_03_RenameNote()">
+      <SelectionState runConfigName="GroupServiceTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="test_04_MoveNoteToAnotherGroup()">
+      <SelectionState runConfigName="NoteServiceTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="test_05_DeleteNoteFromGroup()">
+      <SelectionState runConfigName="GroupNoteLinkServiceTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="test_06_DeleteAllGroups()">
+      <SelectionState runConfigName="GroupNoteManagerTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

@@ -23,26 +23,28 @@
             android:id="@+id/buttonCreate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Создать"/>
+            android:text="Создать"
+            android:textSize="10sp"/>
 
         <Button
             android:id="@+id/buttonUpdate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Изменить"/>
+            android:text="Изменить"
+            android:textSize="10sp"/>
 
         <Button
             android:id="@+id/buttonDelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Удалить"/>
+            android:text="Удалить"
+            android:textSize="10sp"/>
 
         <Button
             android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Отмена"/>
+            android:text="Отмена"
+            android:textSize="10sp"/>
     </LinearLayout>
 </LinearLayout>

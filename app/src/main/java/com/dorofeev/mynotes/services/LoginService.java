@@ -3,9 +3,12 @@ package com.dorofeev.mynotes.services;
 import androidx.annotation.NonNull;
 
 import com.dorofeev.mynotes.models.User;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,20 +24,19 @@ public class LoginService {
     private final CollectionReference collectionRef; // Ссылка на коллекцию пользователей
     /*
      * Получение экземпляра сервиса
+     * @return Экземпляр сервиса
      */
-    public static LoginService getInstance() {
-        if (instance == null){
+    public synchronized static LoginService getInstance() {
+        if (instance == null) {
             instance = new LoginService();
         }
         return instance;
     }
-    /*
-     * Конструктор для создания объекта с начальными значениями
-     */
+    // Конструктор
     private LoginService() {
         collectionRef = FirebaseFirestore.getInstance().collection("users");
     }
-    // Интерфейс для callback загрузки пользователей
+    // Сallback интерфейс для обработки результата загрузки пользователей
     public interface UsersLoadedCallback {
         /* Метод для обработки успешной загрузки пользователей
          * @param users Список пользователей
@@ -45,7 +47,7 @@ public class LoginService {
          */
         void onError(Exception e);
     }
-    // Интерфейс для callback логина пользователя
+    // Callback интерфейс для обработки входа пользователя
     public interface UserLoginCallback {
         /* Метод для обработки успешного логина пользователя
          * @param user Пользователь
@@ -63,17 +65,25 @@ public class LoginService {
     public void getUsers(@NonNull final UsersLoadedCallback callback) {
         collectionRef
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<User> users = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        User.UserDTO dto = doc.toObject(User.UserDTO.class);
-                        if (dto.getUsername() != null) {
-                            users.add(new User(doc.getId(), dto));
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        List<User> users = new ArrayList<User>();
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            DTO_User dto = doc.toObject(DTO_User.class);
+                            if (dto.getUsername() != null) {
+                                users.add(dto.toUser(doc.getId()));
+                            }
                         }
+                        callback.onUsersLoaded(users);
                     }
-                    callback.onUsersLoaded(users);
                 })
-                .addOnFailureListener(callback::onError);
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onError(e);
+                    }
+                });
     }
 
     /*
@@ -81,32 +91,66 @@ public class LoginService {
      * @param userId ID пользователя
      * @param callback Callback для обработки результата
      */
-    public void loginUser(@NonNull String userId, @NonNull final UserLoginCallback callback) {
+    public void loginUser(@NonNull final String userId, @NonNull final UserLoginCallback callback) {
         collectionRef
                 .document(userId)
                 .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        User.UserDTO dto = documentSnapshot.toObject(User.UserDTO.class);
-                        if (dto != null && dto.getUsername() != null) {
-                            currentUser = new User(userId, dto);
-                            callback.onUserLoggedIn(currentUser);
+                .addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<com.google.firebase.firestore.DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(com.google.firebase.firestore.DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            DTO_User dto = documentSnapshot.toObject(DTO_User.class);
+                            if (dto != null && dto.getUsername() != null) {
+                                currentUser = dto.toUser(userId);
+                                callback.onUserLoggedIn(currentUser);
+                            } else {
+                                callback.onError(new Exception("User data is invalid or incomplete"));
+                            }
                         } else {
-                            callback.onError(new Exception("User data is invalid or incomplete"));
+                            callback.onError(new Exception("User not found"));
                         }
-                    } else {
-                        callback.onError(new Exception("User not found"));
                     }
                 })
-                .addOnFailureListener(callback::onError);
+                .addOnFailureListener(new com.google.android.gms.tasks.OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onError(e);
+                    }
+                });
     }
+
     /*
      * Получить текущего пользователя после успешного входа
+     * @return Текущий пользователь
+     * @throws IllegalStateException - Если пользователь не вошёл в систему
      */
-    public User getCurrentUser() {
+    public User getCurrentUser() throws IllegalStateException {
         if (currentUser == null) {
             throw new IllegalStateException("User not logged in");
         }
         return currentUser;
+    }
+    /*
+     * DTO класс пользователя для Firebase
+     */
+    public static class DTO_User {
+        private String username; // Имя пользователя
+        // Пустой конструктор для Firebase
+        public DTO_User() {
+        }
+        // getter и setter для имени пользователя
+        public String getUsername() {
+            return username;
+        }
+        public void setUsername(String username) {
+            this.username = username;
+        }
+       /*
+        * Метод для преобразования DTO в объект пользователя
+        * @param id ID пользователя
+        */
+        public User toUser(@NonNull String id) {
+            return new User(id, username);
+        }
     }
 }

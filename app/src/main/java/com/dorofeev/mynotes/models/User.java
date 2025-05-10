@@ -2,18 +2,16 @@ package com.dorofeev.mynotes.models;
 
 // Модель для хранения информации о пользователе
 public class User {
-    // Идентификатор пользователя
-    private final String id;
-    // Имя пользователя
-    private final String username;
+    private final String id;          // Идентификатор пользователя
+    private final String username;    // Имя пользователя
     /*
      * Конструктор для создания объекта с начальными значениями
-     * @param id Идентификатор пользователя - берется из БД
-     * @param dto Объект данных из Firebase
+     * @param id - идентификатор пользователя
+     * @param username - имя пользователя
      */
-    public User(String id, UserDTO dto) {
+    public User(String id, String username) {
         this.id = id;
-        this.username = dto.username;
+        this.username = username;
     }
     // Id - геттер
     public String getId() {
@@ -22,24 +20,5 @@ public class User {
     // Имя пользователя - геттер
     public String getUsername() {
         return username;
-    }
-    // Объект данных для Firebase
-    public static class UserDTO {
-        // Имя пользователя
-        private String username;
-        public UserDTO() {
-            // Пустой конструктор для Firebase
-        }
-        // Конструктор для отладки
-        public UserDTO(String user) {
-            this.username = user;
-        }
-        // getter и setter для имени пользователя
-        public String getUsername() {
-            return username;
-        }
-        public void setUsername(String username) {
-            this.username = username;
-        }
     }
 }

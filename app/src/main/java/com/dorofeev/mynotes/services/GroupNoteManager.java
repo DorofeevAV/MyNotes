@@ -7,7 +7,6 @@ import com.dorofeev.mynotes.models.GroupNoteLink;
 import com.dorofeev.mynotes.models.Note;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /*
  * Менеджер заметок и групп — построение структуры дерева заметок
@@ -20,12 +19,13 @@ public class GroupNoteManager {
     private final GroupNoteLinkService linkService; // Сервис для работы со связями
     private final Map<String, Group> groupsById = new HashMap<>();  // Кэш групп
     private final Map<String, Note> notesById = new HashMap<>();  // Кэш заметок
-    private final Map<String, List<Note>> groupIdToNotes = new HashMap<>(); // Кэш групп -> заметки
-    private StructureChangedCallback structureChangedCallback;
+    private final Map<String, List<Note>> groupIdToNotes = new HashMap<>(); // Кэш групп => заметки
+    private StructureChangedCallback structureChangedCallback; // Обратный вызов для изменения структуры
     /*
      * Закрытый конструктор
      */
     private GroupNoteManager() {
+        // Подписываемся на изменение групп
         groupService = new GroupService(new GroupService.GroupsChangedListener() {
             @Override
             public void onGroupsChanged(List<Group> groups) {
@@ -43,7 +43,7 @@ public class GroupNoteManager {
                 }
             }
         });
-
+        // Подписываемся на изменение заметок
         noteService = new NoteService(new NoteService.NotesChangedListener() {
             @Override
             public void onNotesChanged(List<Note> notes) {
@@ -61,7 +61,7 @@ public class GroupNoteManager {
                 }
             }
         });
-
+        // Подписываемся на изменение связей
         linkService = new GroupNoteLinkService(new GroupNoteLinkService.LinksChangedListener() {
             @Override
             public void onLinksChanged(List<GroupNoteLink> links) {
@@ -79,7 +79,7 @@ public class GroupNoteManager {
     // Получение единственного экземпляра менеджера
     public static synchronized GroupNoteManager getInstance() {
         if (instance == null) {
-            instance = new GroupNoteManager();
+            instance = new GroupNoteManager(); // Создаем единственный экземпляр
         }
         return instance;
     }
@@ -99,6 +99,10 @@ public class GroupNoteManager {
             structureChangedCallback.onStructureChanged(getStructureSnapshot());
         }
     }
+    /*
+     * Получить текущую структуру групп и заметок
+     * @return Текущая структура групп и заметок
+     */
     public Map<Group,List<Note>> getStructureSnapshot() {
         Map<Group, List<Note>> snapshot = new HashMap<>();
         for (Map.Entry<String, List<Note>> entry : groupIdToNotes.entrySet()) {
@@ -117,8 +121,15 @@ public class GroupNoteManager {
     public void createGroup(String name, GroupService.OperationCallback callback) {
         groupService.createGroup(name, callback);
     }
-
     /*
+     * Обновить группу
+     * @param group Группа с обновлённым именем
+     * @param callback Обратный вызов
+     */
+    public void updateGroup(@NonNull Group group, @NonNull GroupService.OperationCallback callback) {
+        groupService.updateGroup(group, callback);
+    }
+     /*
      * Создать заметку и связать её с группой
      * @param group Группа, с которой будет связана заметка
      * @param title Заголовок заметки
@@ -263,27 +274,30 @@ public class GroupNoteManager {
 
     // Перестроение структуры групп -> заметки
     private void rebuildStructure() {
-        // П полные данные
+        // Если нет групп
         if (groupsById.isEmpty())
             return;
-        if (notesById.isEmpty())
-            return;
-        if (linkService.getLinks().isEmpty())
-            return;
-        //
+
         groupIdToNotes.clear();
-        for (GroupNoteLink link : linkService.getLinks()) {
-            String groupId = link.getGroupId();
-            String noteId = link.getNoteId();
-            Group group = groupsById.get(groupId);
-            Note note = notesById.get(noteId);
-            if (group != null && note != null) {
-                if (!groupIdToNotes.containsKey(groupId)) {
-                    groupIdToNotes.put(groupId, new ArrayList<>());
+
+        // Сначала добавим все группы как ключи с пустыми списками
+        for (Map.Entry<String, Group> entry : groupsById.entrySet()) {
+            groupIdToNotes.put(entry.getKey(), new ArrayList<>());
+        }
+
+        // Если есть заметки и связи, добавим их
+        if (!notesById.isEmpty() && !linkService.getLinks().isEmpty()) {
+            for (GroupNoteLink link : linkService.getLinks()) {
+                String groupId = link.getGroupId();
+                String noteId = link.getNoteId();
+                Group group = groupsById.get(groupId);
+                Note note = notesById.get(noteId);
+                if (group != null && note != null) {
+                    groupIdToNotes.get(groupId).add(note);
                 }
-                groupIdToNotes.get(groupId).add(note);
             }
         }
+        // Если есть обратный вызов, вызываем его
         if (structureChangedCallback != null) {
             Map<Group, List<Note>> snapshot = new HashMap<>();
             for (Map.Entry<String, List<Note>> entry : groupIdToNotes.entrySet()) {
@@ -292,7 +306,7 @@ public class GroupNoteManager {
                     snapshot.put(group, new ArrayList<>(entry.getValue()));
                 }
             }
-            structureChangedCallback.onStructureChanged(getStructureSnapshot());
+            structureChangedCallback.onStructureChanged(snapshot);
         }
     }
 }

@@ -3,7 +3,6 @@ package com.dorofeev.mynotes;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.dorofeev.mynotes.models.GroupNoteLink;
-import com.dorofeev.mynotes.models.Note;
 import com.dorofeev.mynotes.services.GroupNoteLinkService;
 
 import org.junit.FixMethodOrder;
@@ -53,7 +52,7 @@ public class GroupNoteLinkServiceTest {
 
         return groupService;
     }
-
+    // Тест создания связи между группой и заметкой
     @Test
     public void test01_createLink() throws Exception {
         GroupNoteLinkService groupNoteLinkService = init();
@@ -77,7 +76,7 @@ public class GroupNoteLinkServiceTest {
 
         assertTrue("Создание связи не завершилось", latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
     }
-
+    // Тест загрузки всех связей
     @Test
     public void test02_loadLinks() throws Exception {
         GroupNoteLinkService groupNoteLinkService = init();
@@ -92,7 +91,7 @@ public class GroupNoteLinkServiceTest {
                     " (ID: " + link.getId() + ")");
         }
     }
-
+    // Тест обновления связи
     @Test
     public void test03_updateLink() throws Exception {
         GroupNoteLinkService groupNoteLinkService = init();
@@ -121,7 +120,7 @@ public class GroupNoteLinkServiceTest {
 
         assertTrue("Обновление не завершено", latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
     }
-
+    // Тест удаления всех связей
     @Test
     public void test04_removeAllLinks() throws Exception {
         GroupNoteLinkService groupNoteLinkService = init();

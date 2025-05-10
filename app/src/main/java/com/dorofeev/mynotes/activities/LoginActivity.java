@@ -2,9 +2,6 @@ package com.dorofeev.mynotes.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -22,18 +19,15 @@ import com.dorofeev.mynotes.services.LoginService;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Вход в приложение
+ */
 public class LoginActivity extends AppCompatActivity {
 
-    // LoginService — сервис для работы с пользователями
-    private LoginService loginService;
-    // ProgressBar — индикатор загрузки
-    private ProgressBar progressBar;
-    // Spinner — выпадающий список пользователей
-    private Spinner userSpinner;
-    // Button — кнопка входа
-    private Button loginButton;
-    // Список пользователей
-    private final List<User> userList = new ArrayList<>();
+    private ProgressBar progressBar;    // компонент - индикатор загрузки
+    private Spinner userSpinner;        // выпадающий список пользователей
+    private Button loginButton;         // кнопка входа
+    private final List<User> userList = new ArrayList<>();  // список пользователей
     // Перегружаем метод onCreate для инициализации элементов интерфейса
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,8 +38,12 @@ public class LoginActivity extends AppCompatActivity {
         userSpinner = findViewById(R.id.userSpinner);
         loginButton = findViewById(R.id.buttonLogin);
         // Установка обработчиков
-        loginService = LoginService.getInstance();
-        loginButton.setOnClickListener(v -> onLoginClick());
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onLoginClick();
+            }
+        });
         // Загружаем пользователей
         loadUsers();
     }
@@ -56,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setEnabled(false);
         userSpinner.setEnabled(false);
         // Получаем список пользователей из LoginService
-        loginService.getUsers(new LoginService.UsersLoadedCallback() {
+        LoginService.getInstance().getUsers(new LoginService.UsersLoadedCallback() {
             @Override
             public void onUsersLoaded(List<User> users) {
                 // Список пользователей загружен
@@ -106,11 +104,13 @@ public class LoginActivity extends AppCompatActivity {
         userSpinner.setEnabled(false);
         loginButton.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
-        loginService.loginUser(selectedUser.getId(), new LoginService.UserLoginCallback() {
+        LoginService.getInstance().loginUser(selectedUser.getId(), new LoginService.UserLoginCallback() {
             @Override
             public void onUserLoggedIn(User loggedInUser) {
+                // Успешный вход
                 Toast.makeText(LoginActivity.this, "Вы вошли как: " + loggedInUser.getUsername(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                // Переход на главный экран приложения
                 startActivity(intent);
                 finish();
             }

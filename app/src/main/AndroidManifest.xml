@@ -26,6 +26,13 @@
             android:name=".activities.NoteEditActivity"
             android:exported="false">
         </activity>
+        <activity
+            android:name=".activities.NoteViewActivity"
+            android:exported="false">
+        </activity>
+        <activity android:name=".activities.SearchResultsActivity"
+            android:exported="false">
+        </activity>
     </application>
 
 </manifest>

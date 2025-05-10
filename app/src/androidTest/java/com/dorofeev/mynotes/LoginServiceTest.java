@@ -18,23 +18,21 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
+/*
  * Тесты для LoginService
  */
-
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoginServiceTest {
     private LoginService loginService;  // Сервис для работы с пользователями
     private static final int TIMEOUT_SECONDS = 30; // Время ожидания в секундах
-
-    /// Начальная настройка тестов
+    // Начальная настройка тестов - получение singleton экземпляра LoginService
     @Before
     public void setUp() {
         loginService = LoginService.getInstance();
     }
-    /**
-     * Метод для блокирующей загрузки пользователей
+    /*
+     * Вспомогательны метод для блокирующей загрузки пользователей
      * @return Список пользователей
      * @throws InterruptedException
      */
@@ -56,15 +54,15 @@ public class LoginServiceTest {
             }
         });
 
-        boolean completed = latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        assertTrue("Загрузка пользователей не завершилась вовремя", completed);
+        assertTrue("Загрузка пользователей не завершилась вовремя",
+                latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
 
         List<User> users = resultHolder.get();
         assertNotNull("Список пользователей не должен быть null", users);
         assertFalse("Список пользователей не должен быть пустым", users.isEmpty());
         return users;
     }
-    /// Тест с входом неизвестного пользователя
+    // Тест с входом неизвестного пользователя
     @Test
     public void test_01_LoginWithInvalidUserId() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
@@ -93,7 +91,7 @@ public class LoginServiceTest {
         boolean completed = latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         assertTrue("Тест логина с неверным ID не завершился вовремя", completed);
     }
-    /// Тест с входом известного пользователя
+    // Тест с входом известного пользователя
     @Test
     public void test_02_LoginWithValidUserId() throws InterruptedException {
         List<User> users = loadUsersBlocking();
@@ -120,7 +118,6 @@ public class LoginServiceTest {
                 latch.countDown();
             }
         });
-
         boolean completed = latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         assertTrue("Тест логина с правильным ID не завершился вовремя", completed);
     }

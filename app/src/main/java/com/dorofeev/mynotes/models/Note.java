@@ -2,11 +2,12 @@ package com.dorofeev.mynotes.models;
 
 import androidx.annotation.NonNull;
 import java.util.List;
+import java.io.Serializable;
 
 /*
  * Модель заметки (без Firestore ID)
  */
-public class Note {
+public class Note implements Serializable {
     private final String id;                // Идентификатор заметки
     private String title;             // Заголовок
     private String contentMarkdown;   // Текст в Markdown

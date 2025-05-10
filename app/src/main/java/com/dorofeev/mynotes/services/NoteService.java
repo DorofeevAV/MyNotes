@@ -4,10 +4,15 @@ import androidx.annotation.NonNull;
 
 import com.dorofeev.mynotes.models.Group;
 import com.dorofeev.mynotes.models.Note;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -26,28 +31,31 @@ public class NoteService {
     /*
      * Приватный конструктор — инициализация коллекции и запуск слушателя
      */
-    public NoteService( NotesChangedListener listener) {
+    public NoteService(final NotesChangedListener listener) {
         /* Получение коллекции "notes" из Firestore */
         this.collectionRef = FirebaseFirestore.getInstance().collection("notes");
 
         /* Установка слушателя Firestore, отслеживающего изменения коллекции */
-        notesListener = collectionRef.addSnapshotListener((snapshots, e) -> {
-            if (e != null || snapshots == null) {
-                if (listener != null) listener.onError(e);
-                return;
-            }
+        notesListener = collectionRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot snapshots, FirebaseFirestoreException e) {
+                if (e != null || snapshots == null) {
+                    if (listener != null) listener.onError(e);
+                    return;
+                }
 
-            /* Список внутренних объектов с ID */
-            List<Note> newList = new ArrayList<>();
-            for (QueryDocumentSnapshot doc : snapshots) {
-                DTO_Note data = doc.toObject(DTO_Note.class);
-                newList.add(data.toNote(doc.getId()));
-            }
-            // Кешируем список новых заметок
-            cachedNotes = Collections.unmodifiableList(newList);
-            // Вызов события
-            if (listener != null) {
-                listener.onNotesChanged(cachedNotes);
+                /* Список внутренних объектов с ID */
+                List<Note> newList = new ArrayList<Note>();
+                for (QueryDocumentSnapshot doc : snapshots) {
+                    DTO_Note data = doc.toObject(DTO_Note.class);
+                    newList.add(data.toNote(doc.getId()));
+                }
+                // Кешируем список новых заметок
+                cachedNotes = Collections.unmodifiableList(newList);
+                // Вызов события
+                if (listener != null) {
+                    listener.onNotesChanged(cachedNotes);
+                }
             }
         });
     }
@@ -86,18 +94,29 @@ public class NoteService {
      * @param tags список тегов, связанных с заметкой
      * @param callback колбэк для результата операции
      */
-    public void createNote(@NonNull String title, String contentMarkdown, String imageUrl,
-                           List<String> fileUrls, List<String> tags,
+    public void createNote(@NonNull final String title, final String contentMarkdown, final String imageUrl,
+                           final List<String> fileUrls, final List<String> tags,
                            @NonNull final OperationCallback callback) {
-        String id = collectionRef.document().getId(); // Генерация нового ID
-        Note note = new Note( id, title, contentMarkdown, imageUrl, fileUrls, tags);
-        // Сохраниени новой заметки в Firestore
+        final String id = collectionRef.document().getId(); // Генерация нового ID
+        final Note note = new Note(id, title, contentMarkdown, imageUrl, fileUrls, tags);
+        // Сохраниение новой заметки в Firestore
         collectionRef
                 .document(id)
                 .set(note)
-                .addOnSuccessListener(unused -> callback.onSuccess(note))
-                .addOnFailureListener(callback::onError);
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        callback.onSuccess(note);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onError(e);
+                    }
+                });
     }
+
 
     /*
      * Обновить заметку в Firestore
@@ -108,8 +127,18 @@ public class NoteService {
         collectionRef
                 .document(note.getId())
                 .set(new DTO_Note(note), SetOptions.merge()) // Обновление данных
-                .addOnSuccessListener(unused -> callback.onSuccess(note))
-                .addOnFailureListener(callback::onError);
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        callback.onSuccess(note);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onError(e);
+                    }
+                });
     }
 
     /*
@@ -138,8 +167,18 @@ public class NoteService {
         }
 
         batch.commit()
-                .addOnSuccessListener(unused -> callback.onSuccess(notesIds))
-                .addOnFailureListener(callback::onError);
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        callback.onSuccess(notesIds);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onError(e);
+                    }
+                });
     }
     /*
      * Внутренний класс данных для Firestore
