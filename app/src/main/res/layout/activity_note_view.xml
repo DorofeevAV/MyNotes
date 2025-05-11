@@ -1,0 +1,103 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Кнопка закрытия -->
+        <ImageButton
+            android:id="@+id/buttonClose"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="end"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <!-- Изображение группы -->
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="117dp"
+            android:layout_marginBottom="12dp"
+            android:scaleType="centerCrop" />
+
+        <!-- Заголовок заметки -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Заголовок"
+            android:textSize="12sp"
+            />
+        <TextView
+            android:id="@+id/textViewTitleGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_marginBottom="4dp"/>
+
+        <!-- Название группы -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Группа"
+            android:textSize="12sp"
+            />
+        <TextView
+            android:id="@+id/textViewGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Теги -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Теги"
+            android:textSize="12sp"
+            />
+        <TextView
+            android:id="@+id/textViewTags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Markdown-контент -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Содержимое"
+            android:textSize="12sp"
+            />
+
+        <TextView
+            android:id="@+id/textViewContent"
+            android:layout_width="match_parent"
+            android:layout_height="121dp"
+            android:layout_marginBottom="12dp"
+            android:textSize="16sp" />
+
+        <!-- Ссылки на файлы -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Файлы"
+            android:textSize="12sp"
+            />
+
+        <TextView
+            android:id="@+id/textViewFiles"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+
+            android:autoLink="web" />
+
+    </LinearLayout>
+</ScrollView>

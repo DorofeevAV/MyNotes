@@ -1,0 +1,18 @@
+site_name: MyNotes Docs
+
+theme:
+  name: mkdocs
+  language: ru
+  palette:
+    scheme: default
+    primary: indigo
+    accent: indigo
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - tables
+  - codehilite
+  - footnotes
+  - attr_list
